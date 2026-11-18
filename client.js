@@ -89,6 +89,17 @@ body.ui-studio-glass [data-shortcut-modal="settings"] {
 body.ui-studio-glass [data-dockkit-content] {
   background-color: var(--uis-pane-fill, var(--dsw-alias-bg-base));
 }
+/* Reading surfaces inside the transcript — changed-file diffs and presented
+   documents — keep an opaque palette fill for the same reason. */
+body.ui-studio-glass [data-changed-files],
+body.ui-studio-glass [data-presented-file],
+body.ui-studio-glass [data-presented-files-row],
+body.ui-studio-glass [data-changes-hover-preview] {
+  --dsw-alias-bg-layer-1: var(--uis-card-fill);
+  --dsw-alias-bg-layer-2: var(--uis-panel-fill);
+  --dsw-alias-card-fill: var(--uis-card-fill);
+  --dsw-alias-card-fill-hover: var(--uis-card-fill-hover);
+}
 `
 
 
@@ -182,7 +193,7 @@ body.ui-studio-glass [data-dockkit-content] {
       accentPicker: 'Accent color picker',
       accentHex: 'Accent hex value',
       glass: 'Glass & background',
-      glassHint: 'A blurred backdrop shows through translucent surfaces. The settings panel and the code/document preview panes stay opaque, so controls and reading surfaces remain readable.',
+      glassHint: 'A blurred backdrop shows through translucent surfaces. The settings panel, workbench panes, and transcript reading cards stay opaque, so content remains readable.',
       transparency: 'Transparency',
       transparencyHint: 'How much of the backdrop shows through app surfaces. 0% is opaque.',
       blur: 'Blur',
@@ -252,7 +263,7 @@ body.ui-studio-glass [data-dockkit-content] {
       accentPicker: '强调色选择器',
       accentHex: '强调色十六进制值',
       glass: '玻璃与背景',
-      glassHint: '模糊的背景会透过半透明界面显示。设置面板与代码/文档预览保持不透明，便于阅读和比较。',
+      glassHint: '模糊的背景会透过半透明界面显示。设置面板、预览面板与聊天区内的阅读卡片保持不透明，便于阅读。',
       transparency: '透明度',
       transparencyHint: '界面透出背景的程度；0% 为不透明。',
       blur: '模糊度',
@@ -590,6 +601,14 @@ body.ui-studio-glass [data-dockkit-content] {
         tokens['--uis-pane-fill'] = {
           light: colorFor('light', 'base'),
           dark: colorFor('dark', 'base'),
+        }
+        tokens['--uis-card-fill'] = {
+          light: layer1Light,
+          dark: layer1Dark,
+        }
+        tokens['--uis-card-fill-hover'] = {
+          light: layer2Light,
+          dark: layer2Dark,
         }
       }
       if (glass) {

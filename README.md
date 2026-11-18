@@ -39,6 +39,7 @@ The settings panel itself is exempt from **Transparency** and **Blur**: it keeps
 - A scrim behind the app reduces extreme contrast.
 - Menus are exempt from **Transparency** and **Blur**: they keep DSH's own translucent surface and backdrop blur.
 - Code and document preview panes keep an opaque fill; preview content never reads through the backdrop.
+- Changed-file diffs and presented documents inside the transcript keep an opaque fill too.
 
 ### Background
 
@@ -158,6 +159,7 @@ The same settings apply to every browser using the profile. The page falls back 
 - Custom accents are contrast-adjusted; the rendered tone may differ from the picked hex.
 - The settings panel is opaque and keeps the applied palette; it does not follow Transparency or Blur.
 - Workbench panes (code and document previews, files, terminal, browser) keep an opaque fill; they do not follow Transparency or Blur.
+- Changed-file diffs and presented documents in the transcript keep an opaque fill; they do not follow Transparency or Blur.
 - Background media is shared across profiles using the plugin; there is no per-profile media directory.
 - MP4/WebM playback depends on the Chromium build and codec; unsupported codecs fall back to the gradient.
 - The included preview is an illustration, not a screenshot.
@@ -242,6 +244,7 @@ MIT. See [LICENSE](LICENSE).
 - 背景带有遮罩以降低极端对比。
 - 菜单不受**透明度**与**模糊度**影响：沿用 DSH 自带的半透明材质和背景模糊。
 - 代码与文档预览面板保持不透明，预览内容不会透出背景。
+- 聊天区内的文件变更 diff 与已呈现文档卡片同样保持不透明。
 
 ### 背景
 
@@ -361,6 +364,7 @@ dsh plugin --profile desktop add github:MiraculousGu/dsh-ui-studio
 - 自定义强调色会做对比度调整，实际颜色可能不同于所选十六进制值。
 - 设置面板保持不透明并沿用当前配色，不受透明度和模糊度影响。
 - 工作台面板（代码与文档预览、文件、终端、浏览器）保持不透明，不受透明度和模糊度影响。
+- 聊天区内的文件变更 diff 与已呈现文档卡片保持不透明，不受透明度和模糊度影响。
 - 背景文件由使用该插件的配置共享，目前没有按配置分离的媒体目录。
 - MP4/WebM 播放取决于 Chromium 构建和编解码器；不支持时回退到渐变背景。
 - 仓库中的预览图是示意图，不是实际截图。
