@@ -17,7 +17,7 @@
 | Name | `dsh-ui-studio` (UI studio) |
 | Version | `1.0.0` |
 | Author | Tianrun Gu ([@MiraculousGu](https://github.com/MiraculousGu)) |
-| Environment | DeepSeek Harness `0.2.2-rc.3`, tested with the **Desktop** profile; the same Web client composition is used by a Web profile |
+| Environment | DeepSeek Harness `0.2.2-rc.3` or newer, tested with the **Desktop** profile (`0.2.2-rc.3`) and a **Web** profile on Linux (`0.2.2-rc.4`); both use the same Web client composition |
 | Features | ① **Glass UI**: translucent app surfaces over a blurred backdrop with a macOS-style default gradient. ② **Transparency slider** (0–100). ③ **Background upload**: PNG/JPEG/WebP/GIF/AVIF/APNG, MP4, or WebM. ④ **Six surface palettes** with light/dark values. ⑤ **Palette or custom accent**, contrast-adjusted per mode. ⑥ **Body, code, and terminal type sizes** shared with Settings → General → Appearance. ⑦ **Optional branding**: product name and 1–2 character/emoji mark. ⑧ **Profile-backed persistence** and a two-step reset. |
 | Repository | https://github.com/MiraculousGu/dsh-ui-studio |
 | License | MIT |
@@ -151,7 +151,7 @@ The same settings apply to every browser using the profile. The page falls back 
 
 ## Compatibility and limitations
 
-- Tested with DeepSeek Harness **`0.2.2-rc.3`** and the Desktop profile. It uses the public Client services `slots`, `locale`, `theme`, and `configForms`, and the Host `settings` and `webServer` services. Future DSH changes to those seams may require an update.
+- Tested with DeepSeek Harness **`0.2.2-rc.3`** (Desktop profile) and **`0.2.2-rc.4`** (Web profile on Linux). It uses the public Client services `slots`, `locale`, `theme`, and `configForms`, and the Host `settings` and `webServer` services. Future DSH changes to those seams may require an update.
 - The theme is intentionally **partial**: main surfaces, layers, sidebar, cards, composer, bubble, and settings cards are glass; menus keep DSH's own glass material; hover cards and toasts remain opaque; some host surfaces may keep the base material.
 - Custom accents are contrast-adjusted; the rendered tone may differ from the picked hex.
 - The settings panel is neutral **only while UI studio is open**; other sections use the applied palette.
@@ -217,7 +217,7 @@ MIT. See [LICENSE](LICENSE).
 | 名称 | `dsh-ui-studio`（UI studio / 界面工作室） |
 | 版本 | `1.0.0` |
 | 作者 | Tianrun Gu（[@MiraculousGu](https://github.com/MiraculousGu)） |
-| 环境 | DeepSeek Harness `0.2.2-rc.3`，已在 **Desktop** 配置中测试；Web 配置使用同一套 Web 客户端 |
+| 环境 | DeepSeek Harness `0.2.2-rc.3` 及以上，已在 **Desktop** 配置（`0.2.2-rc.3`）和 Linux 上的 **Web** 配置（`0.2.2-rc.4`）中测试；两者使用同一套 Web 客户端 |
 | 功能 | ① **玻璃界面**：半透明界面叠加模糊背景，内置 macOS 风格渐变。② **透明度滑杆**（0–100）。③ **背景上传**：PNG/JPEG/WebP/GIF/AVIF/APNG、MP4、WebM。④ **六套配色**，含浅色/深色值。⑤ **跟随配色或自定义强调色**，按模式调整对比度。⑥ **正文/代码/终端字号**，与“设置 → 通用 → 外观”同步。⑦ **可选品牌**：产品名称和 1–2 个字符/emoji 标记。⑧ **保存在配置中**，支持两步重置。 |
 | 仓库 | https://github.com/MiraculousGu/dsh-ui-studio |
 | 许可证 | MIT |
@@ -351,7 +351,7 @@ dsh plugin --profile desktop add github:MiraculousGu/dsh-ui-studio
 
 ## 兼容性与限制
 
-- 已在 DeepSeek Harness **`0.2.2-rc.3`** 的 Desktop 配置中测试。使用公开的 Client 服务 `slots`、`locale`、`theme`、`configForms`，以及 Host 的 `settings`、`webServer` 服务；未来 DSH 若调整这些接口，可能需要更新。
+- 已在 DeepSeek Harness **`0.2.2-rc.3`**（Desktop 配置）和 **`0.2.2-rc.4`**（Linux 上的 Web 配置）中测试。使用公开的 Client 服务 `slots`、`locale`、`theme`、`configForms`，以及 Host 的 `settings`、`webServer` 服务；未来 DSH 若调整这些接口，可能需要更新。
 - 主题是**部分覆盖**：主界面、层级、侧边栏、卡片、输入框、用户气泡和设置卡片为玻璃；菜单沿用 DSH 自带材质；悬浮卡片和通知保持不透明；部分宿主界面可能保留基础材质。
 - 自定义强调色会做对比度调整，实际颜色可能不同于所选十六进制值。
 - 设置面板仅在**界面工作室打开期间**保持中性；其他设置页面使用当前配色。
