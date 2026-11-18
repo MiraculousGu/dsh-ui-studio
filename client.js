@@ -611,15 +611,15 @@ body.ui-studio-glass [data-shortcut-modal="settings"] {
         const surfaceBlur = `${Math.round(blur * 1.6)}px`
         tokens['--uis-backdrop-blur'] = { light: backdropBlur, dark: backdropBlur }
         tokens['--uis-panel-blur'] = { light: surfaceBlur, dark: surfaceBlur }
-        tokens['--dsw-menu-backdrop-filter'] = {
-          light: `blur(${surfaceBlur}) saturate(150%)`,
-          dark: `blur(${surfaceBlur}) saturate(150%)`,
-        }
       }
       if (preset !== undefined) {
         tokens['--dsw-alias-brand-primary'] = {
           light: preset.light.brand,
           dark: preset.dark.brand,
+        }
+        tokens['--dsw-menu-surface-fill'] = {
+          light: withAlpha(preset.light.layer1, 0.7),
+          dark: withAlpha(preset.dark.layer1, 0.64),
         }
       }
       if (snapshot.accentMode === 'custom' && HEX.test(snapshot.accent)) {

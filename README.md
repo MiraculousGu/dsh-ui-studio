@@ -37,7 +37,7 @@ While UI studio is open, the settings panel deliberately uses the **base** theme
 - **Transparency** controls how much of the backdrop shows through. `0%` is opaque; `100%` keeps surfaces at **45% opacity** for readability, not fully transparent.
 - **Blur** is a separate slider (`0–64 px`) for the backdrop and the frosted surfaces. `0 px` keeps the backdrop sharp; menus and the settings panel use **1.6×** the chosen value.
 - A scrim behind the app reduces extreme contrast.
-- Menus keep DSH's own translucent menu surface; while glass is on, their backdrop blur follows the **Blur** setting.
+- Menus are exempt from **Transparency** and **Blur**: they keep DSH's own translucent surface and backdrop blur. A palette still tints their surface for the current mode.
 
 ### Background
 
@@ -238,7 +238,7 @@ MIT. See [LICENSE](LICENSE).
 - **透明度** 控制背景透出的程度。`0%` 为不透明；`100%` 时表面仍保留 **45% 不透明度**，以保证可读性。
 - **模糊度** 是独立滑杆（`0–64 px`），作用于背景与毛玻璃表面；`0 px` 时背景清晰，菜单和设置面板使用所选值的 **1.6 倍**。
 - 背景带有遮罩以降低极端对比。
-- 菜单沿用 DSH 自带的半透明材质；开启玻璃后，其背景模糊跟随**模糊度**设置。
+- 菜单不受**透明度**与**模糊度**影响：沿用 DSH 自带的半透明材质和背景模糊。所选配色仍会为菜单表面着色。
 
 ### 背景
 
