@@ -1,0 +1,59 @@
+{
+  "name": "@local/dsh-ui-studio",
+  "version": "1.0.0",
+  "private": true,
+  "type": "module",
+  "description": "Customize the Web UI with glass transparency, an uploaded background, surface palettes, type sizes, and branding.",
+  "author": "Tianrun Gu",
+  "license": "MIT",
+  "homepage": "https://github.com/MiraculousGu/dsh-ui-studio#readme",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/MiraculousGu/dsh-ui-studio.git"
+  },
+  "bugs": {
+    "url": "https://github.com/MiraculousGu/dsh-ui-studio/issues"
+  },
+  "keywords": [
+    "deepseek-harness",
+    "dsh",
+    "dsh-plugin",
+    "glassmorphism",
+    "theme",
+    "customization"
+  ],
+  "scripts": {
+    "test": "node test/check.mjs"
+  },
+  "exports": {
+    ".": "./index.js",
+    "./client": "./client.js",
+    "./locale/*.json": "./locale/*.json",
+    "./icon": "./icon.svg"
+  },
+  "files": [
+    "index.js",
+    "client.js",
+    "cordis.patch.yml",
+    "locale/*.json",
+    "docs",
+    "icon.svg",
+    "LICENSE",
+    "README.md"
+  ],
+  "dependencies": {
+    "@deepseek-ai/schemastery": "3.19.0"
+  },
+  "dsh": {
+    "bundle": {
+      "patch": "./cordis.patch.yml"
+    },
+    "client": {
+      "platform": "web",
+      "immediately": true,
+      "inject": [
+        "@deepseek-ai/dsh-client-ui-settings"
+      ]
+    }
+  }
+}
