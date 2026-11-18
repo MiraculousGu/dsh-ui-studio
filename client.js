@@ -1,5 +1,5 @@
 window.__ModuleLoader__.load({
-  id: '@local/dsh-ui-studio',
+  id: 'dsh-ui-studio',
   factory(require) {
     const React = require('react')
     const h = React.createElement

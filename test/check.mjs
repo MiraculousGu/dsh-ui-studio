@@ -18,9 +18,9 @@ for (const file of ['client.js', 'index.js']) {
 }
 
 const pkg = json('package.json')
-assert.equal(pkg.name, '@local/dsh-ui-studio')
+assert.equal(pkg.name, 'dsh-ui-studio')
 assert.equal(pkg.type, 'module')
-assert.equal(pkg.private, true)
+assert.notEqual(pkg.private, true)
 assert.equal(pkg.license, 'MIT')
 assert.equal(pkg.dsh.bundle.patch, './cordis.patch.yml')
 assert.equal(pkg.dsh.client.platform, 'web')
@@ -34,7 +34,7 @@ assert.equal(pkg.dependencies['@deepseek-ai/schemastery'], '3.19.0')
 
 const patch = read('cordis.patch.yml')
 assert.match(patch, /id:\s*ui-studio/)
-assert.match(patch, /name:\s*'@local\/dsh-ui-studio'/)
+assert.match(patch, /name:\s*'dsh-ui-studio'/)
 
 for (const locale of ['en', 'zh']) {
   const data = json(`locale/${locale}.json`)
@@ -58,7 +58,7 @@ for (const detail of ['docs/DETAIL.md', 'docs/DETAIL.zh.md']) {
 }
 
 const client = read('client.js')
-assert.match(client, /id:\s*'@local\/dsh-ui-studio'/)
+assert.match(client, /id:\s*'dsh-ui-studio'/)
 assert.match(client, /settings\.section/)
 assert.match(client, /\/ui-studio\/background/)
 assert.match(client, /--dsw-specific-input-major/)

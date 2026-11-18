@@ -84,7 +84,15 @@ The settings panel itself is exempt from **Transparency** and **Blur**: it keeps
 - DeepSeek Harness with the Web client composition (`Desktop` or `Web` profile).
 - Node.js and pnpm for the local checkout. The plugin has no build step, but its Host half depends on `@deepseek-ai/schemastery`.
 
-### From a local clone (recommended)
+### From npm (no build)
+
+```sh
+dsh plugin --profile web add dsh-ui-studio
+```
+
+`dsh-ui-studio` is published on npm with its Host dependency bundled by the registry install, so no `pnpm install` and no build step is needed. Use `--profile desktop` for the Desktop profile. In the app, open **Settings → Plugins → Add plugin** and search for `dsh-ui-studio`.
+
+### From a local clone (for development)
 
 ```sh
 git clone https://github.com/MiraculousGu/dsh-ui-studio.git
@@ -112,7 +120,7 @@ dsh plugin --profile desktop add /absolute/path/to/dsh-ui-studio
 Use `--profile web` for a Web profile. Remove with:
 
 ```sh
-dsh plugin --profile desktop remove @local/dsh-ui-studio
+dsh plugin --profile desktop remove dsh-ui-studio
 ```
 
 A Git spec is available when your DSH build supports it:
@@ -317,7 +325,7 @@ dsh plugin --profile desktop add /absolute/path/to/dsh-ui-studio
 Web 配置使用 `--profile web`。卸载：
 
 ```sh
-dsh plugin --profile desktop remove @local/dsh-ui-studio
+dsh plugin --profile desktop remove dsh-ui-studio
 ```
 
 如果支持 Git 规格：
