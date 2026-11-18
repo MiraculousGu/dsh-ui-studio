@@ -19,8 +19,10 @@ export const Config = z.object({
 })
 
 const ROUTE = '/ui-studio/background'
+const PREFS_ROUTE = '/ui-studio/preferences'
 const UPLOAD_HEADER = 'x-ui-studio-upload'
 const MAX_BYTES = 30 * 1024 * 1024
+const MAX_PREFS_BYTES = 64 * 1024
 const ALLOWED_TYPES = new Set([
   'image/png',
   'image/jpeg',
@@ -38,6 +40,8 @@ const stateRoot = path.join(
 )
 const currentFile = path.join(stateRoot, 'background.bin')
 const metaFile = path.join(stateRoot, 'background.json')
+const prefsFile = path.join(stateRoot, 'preferences.json')
+const profileName = process.env.DSH_PROFILE || 'default'
 
 /** Answer one JSON response unless the response has already gone out. */
 function json(res, status, body) {
@@ -234,6 +238,124 @@ async function removeBackground(req, res) {
   res.end()
 }
 
+/**
+ * Read the preference backup, ignoring a missing, malformed, or foreign
+ * profile's file. The backup only ever restores the look of the profile that
+ * wrote it.
+ */
+async function readPrefsBackup() {
+  try {
+    const value = JSON.parse(await readFile(prefsFile, 'utf8'))
+    if (value !== null && typeof value === 'object'
+      && value.profile === profileName
+      && typeof value.customization === 'string'
+      && typeof value.savedAt === 'string') {
+      return value
+    }
+  } catch {
+    // A missing or malformed backup means there is nothing to restore.
+  }
+  return null
+}
+
+/** Serve the backup, or 404 when this profile has nothing recorded. */
+async function servePrefs(req, res) {
+  const backup = await readPrefsBackup()
+  if (backup === null) {
+    json(res, 404, { error: 'No preference backup is set' })
+    return
+  }
+  json(res, 200, { customization: backup.customization, savedAt: backup.savedAt })
+}
+
+/** Replace the backup with the browser's current serialized preferences. */
+async function savePrefs(req, res, webServer) {
+  if (req.headers[UPLOAD_HEADER] !== '1') {
+    json(res, 403, { error: 'Missing upload marker' })
+    return
+  }
+  if (typeof req.headers.origin === 'string' && req.headers.origin !== '') {
+    if (!originAllowed(req.headers.origin, webServer)) {
+      json(res, 403, { error: 'Unexpected origin' })
+      return
+    }
+  }
+  const declared = Number(req.headers['content-length'])
+  if (Number.isFinite(declared) && declared > MAX_PREFS_BYTES) {
+    json(res, 413, { error: 'Preference backup is too large' })
+    return
+  }
+  let body = ''
+  for await (const chunk of req) {
+    body += chunk
+    if (body.length > MAX_PREFS_BYTES) {
+      json(res, 413, { error: 'Preference backup is too large' })
+      return
+    }
+  }
+  let parsed
+  try {
+    parsed = JSON.parse(body)
+  } catch {
+    json(res, 400, { error: 'Invalid preference backup' })
+    return
+  }
+  const customization = parsed !== null && typeof parsed === 'object' ? parsed.customization : undefined
+  if (typeof customization !== 'string' || customization.length > MAX_PREFS_BYTES) {
+    json(res, 400, { error: 'Invalid preference backup' })
+    return
+  }
+  await mkdir(stateRoot, { recursive: true })
+  const suffix = `${process.pid}-${Date.now()}-${Math.random().toString(36).slice(2)}`
+  const tempFile = path.join(stateRoot, `prefs-${suffix}.tmp`)
+  await writeFile(tempFile, JSON.stringify({
+    profile: profileName,
+    customization,
+    savedAt: new Date().toISOString(),
+  }), 'utf8')
+  await rename(tempFile, prefsFile)
+  res.writeHead(204, { 'cache-control': 'no-store' })
+  res.end()
+}
+
+/** Forget the backup; Reset all uses this so a reset stays reset. */
+async function removePrefs(req, res) {
+  if (req.headers[UPLOAD_HEADER] !== '1') {
+    json(res, 403, { error: 'Missing upload marker' })
+    return
+  }
+  await unlink(prefsFile).catch(() => {})
+  res.writeHead(204, { 'cache-control': 'no-store' })
+  res.end()
+}
+
+/** Dispatch one preference-backup route request. */
+async function handlePrefs(req, res, webServer, ctx) {
+  try {
+    if (req.method === 'GET' || req.method === 'HEAD') {
+      await servePrefs(req, res)
+      return
+    }
+    if (req.method === 'PUT') {
+      await savePrefs(req, res, webServer)
+      return
+    }
+    if (req.method === 'DELETE') {
+      await removePrefs(req, res)
+      return
+    }
+    res.writeHead(405, { allow: 'GET, HEAD, PUT, DELETE' })
+    res.end()
+  } catch (error) {
+    ctx.logger?.error(error)
+    if (res.headersSent) {
+      res.destroy()
+      return
+    }
+    json(res, 500, { error: 'Preference backup operation failed' })
+  }
+}
+
 /** Dispatch one background route request. */
 async function handleBackground(req, res, webServer, ctx) {
   try {
@@ -276,6 +398,11 @@ export function apply(ctx) {
       kind: 'exact',
       path: ROUTE,
       handler: (req, res) => handleBackground(req, res, child.webServer, ctx),
+    }))
+    child.effect(() => child.webServer.register({
+      kind: 'exact',
+      path: PREFS_ROUTE,
+      handler: (req, res) => handlePrefs(req, res, child.webServer, ctx),
     }))
   })
 }

@@ -76,6 +76,7 @@ The settings panel itself is exempt from **Transparency** and **Blur**: it keeps
 - Background media is stored under `$DSH_HOME/ui-studio/` and referenced by URL and media type.
 - **Reset all** (two clicks) restores the default palette, default transparency, the built-in gradient, default type sizes, and disables branding.
 - The page reports **Loading / Saved / Saving / Couldn't save / session only** so a read-only profile is visible.
+- Since `1.1.1` the plugin mirrors the same JSON to `$DSH_HOME/ui-studio/preferences.json`. When the settings document has no saved value (a fresh profile, or a settings entry that vanished), the page restores from that backup and writes it back into the document.
 
 ## Installation
 
@@ -151,14 +152,28 @@ The same settings apply to every browser using the profile. The page falls back 
 | Palettes, accent, transparency, blur, branding | Profile settings document, namespace `ui-studio`, field `customization` |
 | Type sizes | `ui-theme` settings namespace, shared with General → Appearance |
 | Uploaded background | `$DSH_HOME/ui-studio/background.bin` plus `background.json` (default `~/.dsh/ui-studio/`) |
+| Preference backup | `$DSH_HOME/ui-studio/preferences.json` (same JSON plus `profile` and `savedAt`) |
 | Background route | `POST/GET/DELETE /ui-studio/background` on the DSH web server |
+| Preference route | `GET/PUT/DELETE /ui-studio/preferences` on the DSH web server |
 
 - The plugin makes **no outbound network requests** and collects no telemetry.
 - It does not read sessions, messages, credentials, or model data.
 - The background route checks a custom upload marker and, for upload/delete, the page's serving origin (or a loopback spelling). It serves the current background over the DSH web server's binding.
 - If DSH is bound to a LAN address, anyone who can reach that server can fetch the current background image; uploads and deletes still require the marker and same-origin request.
 - The background file is shared by profiles that use the plugin; the most recent upload wins. Remove it from the page or reset the plugin to delete it.
-- Disabling the plugin removes the palette, glass layer, backdrop, and branding, but leaves the background file and type sizes. Type sizes remain in General → Appearance by design.
+- Disabling the plugin removes the palette, glass layer, backdrop, and branding, but leaves the background file, the preference backup, and type sizes. Type sizes remain in General → Appearance by design.
+- The preference backup holds the same visual JSON plus a timestamp and the profile name; it is removed by **Reset all** and contains no session, message, credential, or model data. Writes require the upload marker and a same-origin request.
+
+## Troubleshooting
+
+**After restarting DSH the look is back to default, and Settings → UI studio is gone.**
+DSH loads this plugin from the profile's `bundles` list. Removing a bundle while a session is running keeps that session working, so the change looks harmless — but the next start no longer loads the plugin. Install, remove, or switch the plugin while DSH is not running. To recover, add the bundle back (`dsh plugin --profile <profile> add dsh-ui-studio`, or Settings → Plugins → Add plugin), then restart DSH. Your palette, transparency, blur, background, and branding are still in the profile settings document, and since `1.1.1` the backup also restores them if the settings document lost the value.
+
+**The look is glassy but the background is missing.**
+The media lives at `$DSH_HOME/ui-studio/background.bin`. Re-upload it from Settings → UI studio after moving DSH to another home directory or machine.
+
+**The page says "session only".**
+The settings document is read-only for this session: changes apply now but will not persist. When `$DSH_HOME` is writable the preference backup still records them, so the look is restored on the next start.
 
 ## Compatibility and limitations
 
@@ -289,6 +304,7 @@ MIT. See [LICENSE](LICENSE).
 - 背景保存在 `$DSH_HOME/ui-studio/`，设置中只记录 URL 和媒体类型。
 - **全部恢复默认**（点击两次）会恢复默认配色、默认透明度、内置渐变、默认字号，并关闭品牌。
 - 页面会显示 **加载中 / 已保存 / 保存中 / 无法保存 / 仅本次会话**，只读配置也能明确看到。
+- 自 `1.1.1` 起，插件还会把同一份 JSON 备份到 `$DSH_HOME/ui-studio/preferences.json`。当设置文档里没有已保存的值时（全新配置，或设置条目丢失），页面会从这个备份恢复，并把值写回设置文档。
 
 ## 安装
 
@@ -356,14 +372,28 @@ dsh plugin --profile desktop add github:MiraculousGu/dsh-ui-studio
 | 配色、强调色、透明度、模糊度、品牌 | 配置设置文档，命名空间 `ui-studio`，字段 `customization` |
 | 字号 | `ui-theme` 设置命名空间，与“通用 → 外观”共享 |
 | 上传的背景 | `$DSH_HOME/ui-studio/background.bin` 与 `background.json`（默认 `~/.dsh/ui-studio/`） |
+| 偏好备份 | `$DSH_HOME/ui-studio/preferences.json`（同一份 JSON，附加 `profile` 与 `savedAt`） |
 | 背景路由 | DSH Web 服务器上的 `POST/GET/DELETE /ui-studio/background` |
+| 偏好路由 | DSH Web 服务器上的 `GET/PUT/DELETE /ui-studio/preferences` |
 
 - 插件**不发起外部网络请求**，不收集遥测。
 - 不读取会话、消息、凭据或模型数据。
 - 背景路由校验上传标记；上传/删除还校验页面来源或 loopback 写法。背景通过 DSH Web 服务器的绑定地址提供。
 - 如果 DSH 绑定到局域网地址，能访问该服务器的人可以获取当前背景图片；上传和删除仍需要上传标记和同源请求。
 - 背景文件由使用该插件的配置共享，最后一次上传生效。可在页面中移除或在插件重置时删除。
-- 禁用插件会移除配色、玻璃层、背景层和品牌，但保留背景文件和字号。字号属于“通用 → 外观”，这是有意设计。
+- 禁用插件会移除配色、玻璃层、背景层和品牌，但保留背景文件、偏好备份和字号。字号属于“通用 → 外观”，这是有意设计。
+- 偏好备份只保存同一份视觉 JSON，附加时间戳和配置名；**全部恢复默认**会删除它，其中不含会话、消息、凭据或模型数据。写入需要上传标记和同源请求。
+
+## 故障排查
+
+**重启 DSH 后外观回到默认，设置里的“UI studio”页也不见了。**
+DSH 依据配置的 `bundles` 列表加载本插件。在会话运行中移除 bundle 只会影响下一次启动：当前会话照常运行，看起来无害，但重启后插件就不再加载。请在 DSH 未运行时安装、移除或切换本插件。恢复方式：把 bundle 加回去（`dsh plugin --profile <配置> add dsh-ui-studio`，或在“设置 → 插件 → 添加插件”中选择），然后重启 DSH。配色、透明度、模糊度、背景和品牌仍在配置设置文档里；自 `1.1.1` 起，即使设置文档丢了值，备份也会还原外观。
+
+**界面已经是玻璃效果，但背景不见了。**
+背景媒体在 `$DSH_HOME/ui-studio/background.bin`。把 DSH 换到别的 home 目录或机器后，在“设置 → UI studio”里重新上传即可。
+
+**页面显示“仅本次会话”。**
+本次会话里设置文档是只读的：改动立即生效但不会持久化。若 `$DSH_HOME` 可写，偏好备份仍会记录它们，下次启动时会恢复外观。
 
 ## 兼容性与限制
 

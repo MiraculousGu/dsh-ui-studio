@@ -17,6 +17,7 @@ window.__ModuleLoader__.load({
     const HEX = /^#[0-9a-fA-F]{6}$/
     const ACCENT_ERROR_ID = 'uis-accent-error'
     const UPLOAD_ROUTE = '/ui-studio/background'
+    const PREFS_ROUTE = '/ui-studio/preferences'
     const UPLOAD_HEADER = 'x-ui-studio-upload'
     const MAX_UPLOAD_BYTES = 30 * 1024 * 1024
     const ALLOWED_UPLOAD = /^(image\/(png|jpeg|webp|gif|avif|apng)|video\/(mp4|webm))$/i
@@ -402,6 +403,52 @@ body.ui-studio-glass [data-changes-hover-preview] {
         brandName: snapshot.brandName,
         brandMark: snapshot.brandMark,
       })
+    }
+
+    function isSavedPrefs(raw) {
+      if (typeof raw !== 'string') return false
+      const trimmed = raw.trim()
+      return trimmed !== '' && trimmed !== '{}'
+    }
+
+    /**
+     * Keep a copy of the preferences outside the settings document, so a
+     * profile whose settings entry disappeared or turned read-only can still
+     * restore the look on the next start. Failures stay silent: the live save
+     * must never depend on the backup.
+     */
+    function rememberPrefs(raw) {
+      if (!isSavedPrefs(raw)) return
+      try {
+        fetch(PREFS_ROUTE, {
+          method: 'PUT',
+          headers: { [UPLOAD_HEADER]: '1', 'content-type': 'application/json' },
+          body: JSON.stringify({ customization: raw }),
+        }).catch(() => {})
+      } catch {
+        // No backup when fetch is unavailable; the settings document is
+        // still the primary store.
+      }
+    }
+
+    function forgetPrefs() {
+      try {
+        fetch(PREFS_ROUTE, { method: 'DELETE', headers: { [UPLOAD_HEADER]: '1' } }).catch(() => {})
+      } catch {
+        // Nothing to forget when fetch is unavailable.
+      }
+    }
+
+    async function readPrefsBackup() {
+      try {
+        const response = await fetch(PREFS_ROUTE, { method: 'GET' })
+        if (!response.ok) return undefined
+        const body = await response.json()
+        const raw = body !== null && typeof body === 'object' ? body.customization : undefined
+        return isSavedPrefs(raw) ? raw : undefined
+      } catch {
+        return undefined
+      }
     }
 
     function brandName(snapshot) {
@@ -1766,11 +1813,13 @@ body.ui-studio-glass [data-changes-hover-preview] {
       function saveNow() {
         if (disposed) return
         const snapshot = store.getSnapshot()
+        if (snapshot.status === 'loading') return
+        const raw = serializePrefs(snapshot)
         if (snapshot.status !== 'ready' || !snapshot.writable) {
+          rememberPrefs(raw)
           store.update({ save: snapshot.status === 'unavailable' ? 'session' : 'error' })
           return
         }
-        const raw = serializePrefs(snapshot)
         const revision = localRev
         store.update({ save: 'saving' })
         let request
@@ -1786,6 +1835,7 @@ body.ui-studio-glass [data-changes-hover-preview] {
           if (accepted) {
             dirty = false
             lastRaw = raw
+            rememberPrefs(raw)
             store.update({ save: 'saved' })
           } else {
             store.update({ save: 'error' })
@@ -1870,6 +1920,7 @@ body.ui-studio-glass [data-changes-hover-preview] {
             headers: { [UPLOAD_HEADER]: '1' },
           }).catch((error) => { console.error('ui-studio: background reset failed', error) })
         }
+        forgetPrefs()
         for (const role of FONT_ROLES) {
           const spec = FONT_SPECS[role]
           if (store.getSnapshot().fontSizes[role] !== spec.defaultValue) {
@@ -1901,6 +1952,44 @@ body.ui-studio-glass [data-changes-hover-preview] {
         })
       }
 
+      /**
+       * The settings document is the primary store. When it holds no saved
+       * customization (a fresh profile, or a settings entry that went away),
+       * fall back to the backup the Host keeps for this profile, then write
+       * the recovered value back so the next start is a normal restore.
+       */
+      async function restoreFromBackup(formReady, writable) {
+        const backup = await readPrefsBackup()
+        if (disposed || backup === undefined) return
+        if (isSavedPrefs(lastRaw)) return
+        const revision = localRev
+        store.update({
+          ...parsePrefs(backup),
+          status: formReady ? 'ready' : 'unavailable',
+          writable,
+        })
+        applyAll()
+        if (!writable) {
+          store.update({ save: 'session' })
+          return
+        }
+        store.update({ save: 'saving' })
+        try {
+          const accepted = await form.set(CONFIG_FIELD, backup)
+          if (disposed || revision !== localRev) return
+          if (accepted) {
+            lastRaw = backup
+            rememberPrefs(backup)
+            store.update({ save: 'saved' })
+          } else {
+            store.update({ save: 'error' })
+          }
+        } catch (error) {
+          console.error('ui-studio: preference restore failed', error)
+          if (!disposed) store.update({ save: 'error' })
+        }
+      }
+
       function readForm() {
         if (disposed) return
         const formSnapshot = form.getSnapshot()
@@ -1911,12 +2000,15 @@ body.ui-studio-glass [data-changes-hover-preview] {
         if (!settled) {
           settled = true
           lastRaw = typeof value === 'string' ? value : undefined
+          const formReady = formSnapshot.status === 'ready'
+          const writable = formReady && formSnapshot.writable
           store.update({
             ...parsePrefs(value),
-            status: formSnapshot.status === 'ready' ? 'ready' : 'unavailable',
-            writable: formSnapshot.status === 'ready' ? formSnapshot.writable : false,
+            status: formReady ? 'ready' : 'unavailable',
+            writable,
           })
           applyAll()
+          if (!isSavedPrefs(lastRaw)) void restoreFromBackup(formReady, writable)
           return
         }
         if (formSnapshot.status !== 'ready' || !formSnapshot.writable) {
