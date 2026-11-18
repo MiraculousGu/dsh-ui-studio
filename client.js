@@ -84,6 +84,11 @@ body.ui-studio-glass [data-shortcut-modal="settings"] {
   background-color: var(--uis-panel-fill, var(--dsw-alias-bg-layer-2));
   backdrop-filter: none;
 }
+/* Workbench panes — code, documents, files, terminal, browser — stay opaque:
+   reading surfaces never show the backdrop through their content. */
+body.ui-studio-glass [data-dockkit-content] {
+  background-color: var(--uis-pane-fill, var(--dsw-alias-bg-base));
+}
 `
 
 
@@ -177,7 +182,7 @@ body.ui-studio-glass [data-shortcut-modal="settings"] {
       accentPicker: 'Accent color picker',
       accentHex: 'Accent hex value',
       glass: 'Glass & background',
-      glassHint: 'A blurred backdrop shows through translucent surfaces. The settings panel stays opaque and keeps the selected palette, so its controls remain readable.',
+      glassHint: 'A blurred backdrop shows through translucent surfaces. The settings panel and the code/document preview panes stay opaque, so controls and reading surfaces remain readable.',
       transparency: 'Transparency',
       transparencyHint: 'How much of the backdrop shows through app surfaces. 0% is opaque.',
       blur: 'Blur',
@@ -247,7 +252,7 @@ body.ui-studio-glass [data-shortcut-modal="settings"] {
       accentPicker: '强调色选择器',
       accentHex: '强调色十六进制值',
       glass: '玻璃与背景',
-      glassHint: '模糊的背景会透过半透明界面显示。设置面板保持不透明，并沿用所选配色，便于阅读和比较。',
+      glassHint: '模糊的背景会透过半透明界面显示。设置面板与代码/文档预览保持不透明，便于阅读和比较。',
       transparency: '透明度',
       transparencyHint: '界面透出背景的程度；0% 为不透明。',
       blur: '模糊度',
@@ -581,6 +586,10 @@ body.ui-studio-glass [data-shortcut-modal="settings"] {
         tokens['--uis-panel-fill'] = {
           light: layer2Light,
           dark: layer2Dark,
+        }
+        tokens['--uis-pane-fill'] = {
+          light: colorFor('light', 'base'),
+          dark: colorFor('dark', 'base'),
         }
       }
       if (glass) {

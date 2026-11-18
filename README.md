@@ -26,7 +26,7 @@
 
 Open **Settings → UI studio**. The section is inserted after **Models** and before **Plugins** in the settings navigation. Its icon is the sliders glyph in the same navigation rail.
 
-The settings panel itself is exempt from **Transparency** and **Blur**: it keeps an opaque fill in the applied palette so its controls stay readable. Only the app behind the panel receives the glass treatment.
+The settings panel itself is exempt from **Transparency** and **Blur**: it keeps an opaque fill in the applied palette so its controls stay readable. Workbench panes (code and document previews, files, terminal, browser) are also opaque, so reading surfaces never show the backdrop through their content. Only the app behind them receives the glass treatment.
 
 ## Features
 
@@ -38,6 +38,7 @@ The settings panel itself is exempt from **Transparency** and **Blur**: it keeps
 - **Blur** is a separate slider (`0–64 px`) for the backdrop and the frosted surfaces. `0 px` keeps the backdrop sharp. The settings panel is excluded.
 - A scrim behind the app reduces extreme contrast.
 - Menus are exempt from **Transparency** and **Blur**: they keep DSH's own translucent surface and backdrop blur.
+- Code and document preview panes keep an opaque fill; preview content never reads through the backdrop.
 
 ### Background
 
@@ -156,6 +157,7 @@ The same settings apply to every browser using the profile. The page falls back 
 - The theme is intentionally **partial**: main surfaces, layers, sidebar, cards, composer, bubble, and settings cards are glass; menus keep DSH's own glass material; hover cards and toasts remain opaque; some host surfaces may keep the base material.
 - Custom accents are contrast-adjusted; the rendered tone may differ from the picked hex.
 - The settings panel is opaque and keeps the applied palette; it does not follow Transparency or Blur.
+- Workbench panes (code and document previews, files, terminal, browser) keep an opaque fill; they do not follow Transparency or Blur.
 - Background media is shared across profiles using the plugin; there is no per-profile media directory.
 - MP4/WebM playback depends on the Chromium build and codec; unsupported codecs fall back to the gradient.
 - The included preview is an illustration, not a screenshot.
@@ -227,7 +229,7 @@ MIT. See [LICENSE](LICENSE).
 
 打开 **设置 → 界面工作室**。该页面位于设置导航中 **模型** 之后、**插件** 之前，使用滑杆样式的导航图标。
 
-设置面板本身不受**透明度**与**模糊度**影响：它保持不透明，并沿用所选配色，保证控件可读。只有面板后方的应用界面会应用玻璃效果。
+设置面板本身不受**透明度**与**模糊度**影响：它保持不透明，并沿用所选配色，保证控件可读。工作台面板（代码与文档预览、文件、终端、浏览器）同样保持不透明，阅读界面不会透出背景。只有它们后方的应用界面会应用玻璃效果。
 
 ## 功能
 
@@ -239,6 +241,7 @@ MIT. See [LICENSE](LICENSE).
 - **模糊度** 是独立滑杆（`0–64 px`），作用于背景与毛玻璃表面；`0 px` 时背景清晰。设置面板不受影响。
 - 背景带有遮罩以降低极端对比。
 - 菜单不受**透明度**与**模糊度**影响：沿用 DSH 自带的半透明材质和背景模糊。
+- 代码与文档预览面板保持不透明，预览内容不会透出背景。
 
 ### 背景
 
@@ -357,6 +360,7 @@ dsh plugin --profile desktop add github:MiraculousGu/dsh-ui-studio
 - 主题是**部分覆盖**：主界面、层级、侧边栏、卡片、输入框、用户气泡和设置卡片为玻璃；菜单沿用 DSH 自带材质；悬浮卡片和通知保持不透明；部分宿主界面可能保留基础材质。
 - 自定义强调色会做对比度调整，实际颜色可能不同于所选十六进制值。
 - 设置面板保持不透明并沿用当前配色，不受透明度和模糊度影响。
+- 工作台面板（代码与文档预览、文件、终端、浏览器）保持不透明，不受透明度和模糊度影响。
 - 背景文件由使用该插件的配置共享，目前没有按配置分离的媒体目录。
 - MP4/WebM 播放取决于 Chromium 构建和编解码器；不支持时回退到渐变背景。
 - 仓库中的预览图是示意图，不是实际截图。
