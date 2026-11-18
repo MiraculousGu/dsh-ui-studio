@@ -78,8 +78,11 @@ body[data-ds-dark-theme] #ui-studio-backdrop::after { background: rgba(0, 0, 0, 
   height: 100%;
   object-fit: cover;
 }
+/* The settings panel is exempt from transparency and blur: it keeps an opaque
+   fill (still the selected palette) so its controls stay readable. */
 body.ui-studio-glass [data-shortcut-modal="settings"] {
-  backdrop-filter: blur(var(--uis-panel-blur, 26px)) saturate(1.35);
+  background-color: var(--uis-panel-fill, var(--dsw-alias-bg-layer-2));
+  backdrop-filter: none;
 }
 `
 
@@ -174,7 +177,7 @@ body.ui-studio-glass [data-shortcut-modal="settings"] {
       accentPicker: 'Accent color picker',
       accentHex: 'Accent hex value',
       glass: 'Glass & background',
-      glassHint: 'A blurred backdrop shows through translucent surfaces. The settings page stays neutral so palette options are easy to compare.',
+      glassHint: 'A blurred backdrop shows through translucent surfaces. The settings panel stays opaque and keeps the selected palette, so its controls remain readable.',
       transparency: 'Transparency',
       transparencyHint: 'How much of the backdrop shows through app surfaces. 0% is opaque.',
       blur: 'Blur',
@@ -244,7 +247,7 @@ body.ui-studio-glass [data-shortcut-modal="settings"] {
       accentPicker: '强调色选择器',
       accentHex: '强调色十六进制值',
       glass: '玻璃与背景',
-      glassHint: '模糊的背景会透过半透明界面显示。设置页保持中性配色，方便比较各配色方案。',
+      glassHint: '模糊的背景会透过半透明界面显示。设置面板保持不透明，并沿用所选配色，便于阅读和比较。',
       transparency: '透明度',
       transparencyHint: '界面透出背景的程度；0% 为不透明。',
       blur: '模糊度',
@@ -477,42 +480,12 @@ body.ui-studio-glass [data-shortcut-modal="settings"] {
         : EMPTY_TOKENS
     }
 
-    function baseSurface(snapshot, key) {
-      const token = snapshot.baseThemeTokens !== undefined
-        ? snapshot.baseThemeTokens[TOKEN_VARS[key]]
-        : undefined
-      const mode = snapshot.colorScheme === 'dark' ? 'dark' : 'light'
-      return token || DEFAULT_SURFACES[mode][key]
-    }
-
     function baseBrand(snapshot) {
       const token = snapshot.baseThemeTokens !== undefined
         ? snapshot.baseThemeTokens['--dsw-alias-brand-primary']
         : undefined
       const mode = snapshot.colorScheme === 'dark' ? 'dark' : 'light'
       return token || DEFAULT_BRAND[mode]
-    }
-
-    function baseTokenStyle(snapshot) {
-      const style = {}
-      for (const key of [...SURFACE_KEYS, ...BORDER_KEYS]) {
-        style[TOKEN_VARS[key]] = baseSurface(snapshot, key)
-      }
-      style['--dsw-alias-brand-primary'] = baseBrand(snapshot)
-      style['--dsw-specific-input-major'] = style['--dsw-alias-bg-layer-1']
-      style['--dsw-alias-card-fill'] = style['--dsw-alias-bg-layer-1']
-      style['--dsw-alias-card-fill-hover'] = style['--dsw-alias-bg-layer-2']
-      style['--dsw-specific-bubble'] = style['--dsw-alias-bg-layer-1']
-      style['--dsw-alias-settings-card-fill'] = style['--dsw-alias-bg-layer-2']
-      style['--dsw-alias-settings-card-stroke'] = 'var(--dsw-alias-border-l4)'
-      return style
-    }
-
-    function settingsPanelBaseCss(snapshot) {
-      const declarations = Object.entries(baseTokenStyle(snapshot))
-        .map(([name, value]) => `${name}: ${value};`)
-        .join(' ')
-      return `[data-shortcut-modal="settings"] { ${declarations} }`
     }
 
     function appliedBrand(snapshot) {
@@ -605,21 +578,19 @@ body.ui-studio-glass [data-shortcut-modal="settings"] {
           light: withAlpha(layer2Light, alpha),
           dark: withAlpha(layer2Dark, alpha),
         }
+        tokens['--uis-panel-fill'] = {
+          light: layer2Light,
+          dark: layer2Dark,
+        }
       }
       if (glass) {
         const backdropBlur = `${blur}px`
-        const surfaceBlur = `${Math.round(blur * 1.6)}px`
         tokens['--uis-backdrop-blur'] = { light: backdropBlur, dark: backdropBlur }
-        tokens['--uis-panel-blur'] = { light: surfaceBlur, dark: surfaceBlur }
       }
       if (preset !== undefined) {
         tokens['--dsw-alias-brand-primary'] = {
           light: preset.light.brand,
           dark: preset.dark.brand,
-        }
-        tokens['--dsw-menu-surface-fill'] = {
-          light: withAlpha(preset.light.layer1, 0.7),
-          dark: withAlpha(preset.dark.layer1, 0.64),
         }
       }
       if (snapshot.accentMode === 'custom' && HEX.test(snapshot.accent)) {
@@ -877,8 +848,8 @@ body.ui-studio-glass [data-shortcut-modal="settings"] {
             }, '+')))
       })
 
-      return h('div', { className: 'uis-page', style: baseTokenStyle(snapshot) },
-        h('style', null, CSS + settingsPanelBaseCss(snapshot)),
+      return h('div', { className: 'uis-page' },
+        h('style', null, CSS),
         h('div', { className: 'uis-head' },
           h('div', { className: 'uis-headText' },
             h('h2', { className: 'uis-title' }, t('title')),

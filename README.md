@@ -26,7 +26,7 @@
 
 Open **Settings → UI studio**. The section is inserted after **Models** and before **Plugins** in the settings navigation. Its icon is the sliders glyph in the same navigation rail.
 
-While UI studio is open, the settings panel deliberately uses the **base** theme colors so the palette cards and controls remain stable while you compare options. Only the **Live preview** and the app behind the panel receive the applied palette, glass, and transparency. The panel returns to the applied palette when you switch to another settings section.
+The settings panel itself is exempt from **Transparency** and **Blur**: it keeps an opaque fill in the applied palette so its controls stay readable. Only the app behind the panel receives the glass treatment.
 
 ## Features
 
@@ -35,9 +35,9 @@ While UI studio is open, the settings panel deliberately uses the **base** theme
 - App surfaces (main background, layers, sidebar, cards, composer, user bubble, settings cards) are emitted as translucent colors over a fixed, blurred backdrop.
 - The default backdrop is a built-in macOS-style gradient. Uploading a background replaces it.
 - **Transparency** controls how much of the backdrop shows through. `0%` is opaque; `100%` keeps surfaces at **45% opacity** for readability, not fully transparent.
-- **Blur** is a separate slider (`0–64 px`) for the backdrop and the frosted surfaces. `0 px` keeps the backdrop sharp; menus and the settings panel use **1.6×** the chosen value.
+- **Blur** is a separate slider (`0–64 px`) for the backdrop and the frosted surfaces. `0 px` keeps the backdrop sharp. The settings panel is excluded.
 - A scrim behind the app reduces extreme contrast.
-- Menus are exempt from **Transparency** and **Blur**: they keep DSH's own translucent surface and backdrop blur. A palette still tints their surface for the current mode.
+- Menus are exempt from **Transparency** and **Blur**: they keep DSH's own translucent surface and backdrop blur.
 
 ### Background
 
@@ -124,7 +124,7 @@ Prefer the local clone when you need to inspect or modify the source; the Git sp
 ## Usage
 
 1. Open **Settings → UI studio**.
-2. Pick a **Surface palette**; the live preview and the app update immediately while the palette cards stay neutral.
+2. Pick a **Surface palette**; the live preview and the app update immediately.
 3. Choose **Follow palette** or **Custom color** for the accent.
 4. Move **Transparency** to taste (`0%` opaque, `100%` strongest glass), then set **Blur** separately (`0–64 px`).
 5. Under **Background**, choose a file, then **Replace** or **Remove**. The preview shows images and videos.
@@ -155,7 +155,7 @@ The same settings apply to every browser using the profile. The page falls back 
 - Tested with DeepSeek Harness **`0.2.2-rc.3`** (Desktop profile) and **`0.2.2-rc.4`** (Web profile on Linux). It uses the public Client services `slots`, `locale`, `theme`, and `configForms`, and the Host `settings` and `webServer` services. Future DSH changes to those seams may require an update.
 - The theme is intentionally **partial**: main surfaces, layers, sidebar, cards, composer, bubble, and settings cards are glass; menus keep DSH's own glass material; hover cards and toasts remain opaque; some host surfaces may keep the base material.
 - Custom accents are contrast-adjusted; the rendered tone may differ from the picked hex.
-- The settings panel is neutral **only while UI studio is open**; other sections use the applied palette.
+- The settings panel is opaque and keeps the applied palette; it does not follow Transparency or Blur.
 - Background media is shared across profiles using the plugin; there is no per-profile media directory.
 - MP4/WebM playback depends on the Chromium build and codec; unsupported codecs fall back to the gradient.
 - The included preview is an illustration, not a screenshot.
@@ -227,7 +227,7 @@ MIT. See [LICENSE](LICENSE).
 
 打开 **设置 → 界面工作室**。该页面位于设置导航中 **模型** 之后、**插件** 之前，使用滑杆样式的导航图标。
 
-界面工作室打开期间，设置面板会固定使用**基础主题**颜色，方便比较各配色方案；只有 **实时预览** 和面板后方的应用界面会应用所选配色、玻璃和透明度。切换到其他设置页面后，面板恢复为当前应用的配色。
+设置面板本身不受**透明度**与**模糊度**影响：它保持不透明，并沿用所选配色，保证控件可读。只有面板后方的应用界面会应用玻璃效果。
 
 ## 功能
 
@@ -236,9 +236,9 @@ MIT. See [LICENSE](LICENSE).
 - 主背景、层级、侧边栏、卡片、输入框、用户气泡和设置卡片都使用半透明表面，叠加在固定、模糊的背景上。
 - 默认背景是内置的 macOS 风格渐变；上传背景后替换它。
 - **透明度** 控制背景透出的程度。`0%` 为不透明；`100%` 时表面仍保留 **45% 不透明度**，以保证可读性。
-- **模糊度** 是独立滑杆（`0–64 px`），作用于背景与毛玻璃表面；`0 px` 时背景清晰，菜单和设置面板使用所选值的 **1.6 倍**。
+- **模糊度** 是独立滑杆（`0–64 px`），作用于背景与毛玻璃表面；`0 px` 时背景清晰。设置面板不受影响。
 - 背景带有遮罩以降低极端对比。
-- 菜单不受**透明度**与**模糊度**影响：沿用 DSH 自带的半透明材质和背景模糊。所选配色仍会为菜单表面着色。
+- 菜单不受**透明度**与**模糊度**影响：沿用 DSH 自带的半透明材质和背景模糊。
 
 ### 背景
 
@@ -325,7 +325,7 @@ dsh plugin --profile desktop add github:MiraculousGu/dsh-ui-studio
 ## 使用
 
 1. 打开 **设置 → 界面工作室**。
-2. 选择**配色方案**；实时预览和应用界面立即更新，配色卡片保持中性。
+2. 选择**配色方案**；实时预览和应用界面立即更新。
 3. 强调色选择**跟随配色**或**自定义颜色**。
 4. 拖动**透明度**（`0%` 不透明，`100%` 玻璃感最强），再用**模糊度**单独调节（`0–64 px`）。
 5. 在**背景**中选择文件，然后**替换**或**移除**；预览会显示图片或视频。
@@ -356,7 +356,7 @@ dsh plugin --profile desktop add github:MiraculousGu/dsh-ui-studio
 - 已在 DeepSeek Harness **`0.2.2-rc.3`**（Desktop 配置）和 **`0.2.2-rc.4`**（Linux 上的 Web 配置）中测试。使用公开的 Client 服务 `slots`、`locale`、`theme`、`configForms`，以及 Host 的 `settings`、`webServer` 服务；未来 DSH 若调整这些接口，可能需要更新。
 - 主题是**部分覆盖**：主界面、层级、侧边栏、卡片、输入框、用户气泡和设置卡片为玻璃；菜单沿用 DSH 自带材质；悬浮卡片和通知保持不透明；部分宿主界面可能保留基础材质。
 - 自定义强调色会做对比度调整，实际颜色可能不同于所选十六进制值。
-- 设置面板仅在**界面工作室打开期间**保持中性；其他设置页面使用当前配色。
+- 设置面板保持不透明并沿用当前配色，不受透明度和模糊度影响。
 - 背景文件由使用该插件的配置共享，目前没有按配置分离的媒体目录。
 - MP4/WebM 播放取决于 Chromium 构建和编解码器；不支持时回退到渐变背景。
 - 仓库中的预览图是示意图，不是实际截图。
