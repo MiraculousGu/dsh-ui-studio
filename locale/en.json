@@ -1,7 +1,7 @@
 {
   "meta": {
     "title": "UI studio",
-    "description": "Customize the Web UI with surface palettes, an accent color, glass transparency, an uploaded photo/GIF/video background, type sizes, and your own brand name and mark. Open Settings → UI studio; changes apply live and are saved to this profile. Background media is stored locally and served by the plugin; backgrounds are limited to 30 MB. Turning the plugin off removes its palette, glass, and branding, while type sizes remain in Settings → General → Appearance.",
+    "description": "Customize the Web UI with surface palettes, an accent color, glass transparency and blur, an uploaded photo/GIF/video background, type sizes, and your own brand name and mark. Open Settings → UI studio; changes apply live and are saved to this profile. Background media is stored locally and served by the plugin; backgrounds are limited to 30 MB. Turning the plugin off removes its palette, glass, and branding, while type sizes remain in Settings → General → Appearance.",
     "detail": "docs/DETAIL.md"
   }
 }

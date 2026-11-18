@@ -18,7 +18,7 @@
 | Version | `1.0.0` |
 | Author | Tianrun Gu ([@MiraculousGu](https://github.com/MiraculousGu)) |
 | Environment | DeepSeek Harness `0.2.2-rc.3` or newer, tested with the **Desktop** profile (`0.2.2-rc.3`) and a **Web** profile on Linux (`0.2.2-rc.4`); both use the same Web client composition |
-| Features | ① **Glass UI**: translucent app surfaces over a blurred backdrop with a macOS-style default gradient. ② **Transparency slider** (0–100). ③ **Background upload**: PNG/JPEG/WebP/GIF/AVIF/APNG, MP4, or WebM. ④ **Six surface palettes** with light/dark values. ⑤ **Palette or custom accent**, contrast-adjusted per mode. ⑥ **Body, code, and terminal type sizes** shared with Settings → General → Appearance. ⑦ **Optional branding**: product name and 1–2 character/emoji mark. ⑧ **Profile-backed persistence** and a two-step reset. |
+| Features | ① **Glass UI**: translucent app surfaces over a blurred backdrop with a macOS-style default gradient. ② **Transparency** (0–100) and **blur** (0–64 px) as separate sliders. ③ **Background upload**: PNG/JPEG/WebP/GIF/AVIF/APNG, MP4, or WebM. ④ **Six surface palettes** with light/dark values. ⑤ **Palette or custom accent**, contrast-adjusted per mode. ⑥ **Body, code, and terminal type sizes** shared with Settings → General → Appearance. ⑦ **Optional branding**: product name and 1–2 character/emoji mark. ⑧ **Profile-backed persistence** and a two-step reset. |
 | Repository | https://github.com/MiraculousGu/dsh-ui-studio |
 | License | MIT |
 
@@ -35,8 +35,9 @@ While UI studio is open, the settings panel deliberately uses the **base** theme
 - App surfaces (main background, layers, sidebar, cards, composer, user bubble, settings cards) are emitted as translucent colors over a fixed, blurred backdrop.
 - The default backdrop is a built-in macOS-style gradient. Uploading a background replaces it.
 - **Transparency** controls how much of the backdrop shows through. `0%` is opaque; `100%` keeps surfaces at **45% opacity** for readability, not fully transparent.
-- A scrim behind the app reduces extreme contrast, and the settings panel gets a stronger frosted blur while it is open.
-- Menus already use DSH's own translucent menu surface; hover cards and toasts remain opaque for readability.
+- **Blur** is a separate slider (`0–64 px`) for the backdrop and the frosted surfaces. `0 px` keeps the backdrop sharp; menus and the settings panel use **1.6×** the chosen value.
+- A scrim behind the app reduces extreme contrast.
+- Menus keep DSH's own translucent menu surface; while glass is on, their backdrop blur follows the **Blur** setting.
 
 ### Background
 
@@ -125,7 +126,7 @@ Prefer the local clone when you need to inspect or modify the source; the Git sp
 1. Open **Settings → UI studio**.
 2. Pick a **Surface palette**; the live preview and the app update immediately while the palette cards stay neutral.
 3. Choose **Follow palette** or **Custom color** for the accent.
-4. Move **Transparency** to taste; `0%` is opaque, `100%` is the strongest glass.
+4. Move **Transparency** to taste (`0%` opaque, `100%` strongest glass), then set **Blur** separately (`0–64 px`).
 5. Under **Background**, choose a file, then **Replace** or **Remove**. The preview shows images and videos.
 6. Adjust **Type sizes** and optionally enable **Branding**.
 7. Reload the app or restart it to confirm the settings persist.
@@ -137,7 +138,7 @@ The same settings apply to every browser using the profile. The page falls back 
 
 | Data | Location |
 | --- | --- |
-| Palettes, accent, transparency, branding | Profile settings document, namespace `ui-studio`, field `customization` |
+| Palettes, accent, transparency, blur, branding | Profile settings document, namespace `ui-studio`, field `customization` |
 | Type sizes | `ui-theme` settings namespace, shared with General → Appearance |
 | Uploaded background | `$DSH_HOME/ui-studio/background.bin` plus `background.json` (default `~/.dsh/ui-studio/`) |
 | Background route | `POST/GET/DELETE /ui-studio/background` on the DSH web server |
@@ -187,7 +188,7 @@ pnpm test
 Manual checks that need a running DSH:
 
 - The `settings.section` and `settings.section.icon` entries for `ui-studio` are active in Client Inspect.
-- The page loads in **Settings → UI studio**; palette, transparency, upload, and reset work.
+- The page loads in **Settings → UI studio**; palette, transparency, blur, upload, and reset work.
 - `/ui-studio/background` returns 404 when no background is set, serves the uploaded bytes after POST, supports a byte range, and returns 204 after DELETE.
 
 Issues and pull requests are welcome at https://github.com/MiraculousGu/dsh-ui-studio/issues.
@@ -218,7 +219,7 @@ MIT. See [LICENSE](LICENSE).
 | 版本 | `1.0.0` |
 | 作者 | Tianrun Gu（[@MiraculousGu](https://github.com/MiraculousGu)） |
 | 环境 | DeepSeek Harness `0.2.2-rc.3` 及以上，已在 **Desktop** 配置（`0.2.2-rc.3`）和 Linux 上的 **Web** 配置（`0.2.2-rc.4`）中测试；两者使用同一套 Web 客户端 |
-| 功能 | ① **玻璃界面**：半透明界面叠加模糊背景，内置 macOS 风格渐变。② **透明度滑杆**（0–100）。③ **背景上传**：PNG/JPEG/WebP/GIF/AVIF/APNG、MP4、WebM。④ **六套配色**，含浅色/深色值。⑤ **跟随配色或自定义强调色**，按模式调整对比度。⑥ **正文/代码/终端字号**，与“设置 → 通用 → 外观”同步。⑦ **可选品牌**：产品名称和 1–2 个字符/emoji 标记。⑧ **保存在配置中**，支持两步重置。 |
+| 功能 | ① **玻璃界面**：半透明界面叠加模糊背景，内置 macOS 风格渐变。② **透明度**（0–100）与**模糊度**（0–64 px）两个独立滑杆。③ **背景上传**：PNG/JPEG/WebP/GIF/AVIF/APNG、MP4、WebM。④ **六套配色**，含浅色/深色值。⑤ **跟随配色或自定义强调色**，按模式调整对比度。⑥ **正文/代码/终端字号**，与“设置 → 通用 → 外观”同步。⑦ **可选品牌**：产品名称和 1–2 个字符/emoji 标记。⑧ **保存在配置中**，支持两步重置。 |
 | 仓库 | https://github.com/MiraculousGu/dsh-ui-studio |
 | 许可证 | MIT |
 
@@ -235,8 +236,9 @@ MIT. See [LICENSE](LICENSE).
 - 主背景、层级、侧边栏、卡片、输入框、用户气泡和设置卡片都使用半透明表面，叠加在固定、模糊的背景上。
 - 默认背景是内置的 macOS 风格渐变；上传背景后替换它。
 - **透明度** 控制背景透出的程度。`0%` 为不透明；`100%` 时表面仍保留 **45% 不透明度**，以保证可读性。
-- 背景带有遮罩以降低极端对比；设置面板打开时额外应用更强的毛玻璃模糊。
-- 菜单沿用 DSH 自带的半透明材质；悬浮卡片和通知保持不透明以便阅读。
+- **模糊度** 是独立滑杆（`0–64 px`），作用于背景与毛玻璃表面；`0 px` 时背景清晰，菜单和设置面板使用所选值的 **1.6 倍**。
+- 背景带有遮罩以降低极端对比。
+- 菜单沿用 DSH 自带的半透明材质；开启玻璃后，其背景模糊跟随**模糊度**设置。
 
 ### 背景
 
@@ -325,7 +327,7 @@ dsh plugin --profile desktop add github:MiraculousGu/dsh-ui-studio
 1. 打开 **设置 → 界面工作室**。
 2. 选择**配色方案**；实时预览和应用界面立即更新，配色卡片保持中性。
 3. 强调色选择**跟随配色**或**自定义颜色**。
-4. 拖动**透明度**；`0%` 不透明，`100%` 玻璃感最强。
+4. 拖动**透明度**（`0%` 不透明，`100%` 玻璃感最强），再用**模糊度**单独调节（`0–64 px`）。
 5. 在**背景**中选择文件，然后**替换**或**移除**；预览会显示图片或视频。
 6. 调整**字号**，可选择性开启**品牌**。
 7. 刷新或重启应用，确认设置持久化。
@@ -337,7 +339,7 @@ dsh plugin --profile desktop add github:MiraculousGu/dsh-ui-studio
 
 | 数据 | 位置 |
 | --- | --- |
-| 配色、强调色、透明度、品牌 | 配置设置文档，命名空间 `ui-studio`，字段 `customization` |
+| 配色、强调色、透明度、模糊度、品牌 | 配置设置文档，命名空间 `ui-studio`，字段 `customization` |
 | 字号 | `ui-theme` 设置命名空间，与“通用 → 外观”共享 |
 | 上传的背景 | `$DSH_HOME/ui-studio/background.bin` 与 `background.json`（默认 `~/.dsh/ui-studio/`） |
 | 背景路由 | DSH Web 服务器上的 `POST/GET/DELETE /ui-studio/background` |
@@ -387,7 +389,7 @@ pnpm test
 需要运行中 DSH 的手工检查：
 
 - Client Inspect 中 `ui-studio` 的 `settings.section` 和 `settings.section.icon` 已激活。
-- **设置 → 界面工作室**页面可打开；配色、透明度、上传和重置可用。
+- **设置 → 界面工作室**页面可打开；配色、透明度、模糊度、上传和重置可用。
 - 没有背景时 `/ui-studio/background` 返回 404；上传后返回原始字节，支持字节范围；DELETE 后返回 204。
 
 问题和 PR 欢迎提交到 https://github.com/MiraculousGu/dsh-ui-studio/issues。

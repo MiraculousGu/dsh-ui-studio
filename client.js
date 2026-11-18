@@ -8,10 +8,12 @@ window.__ModuleLoader__.load({
     const ENTRY_ID = 'ui-studio'
     const CONFIG_FIELD = 'customization'
     const TOKEN_SOURCE = 'ui-studio'
-    const CONFIG_VERSION = 2
+    const CONFIG_VERSION = 3
     const DEFAULT_NAME = 'DeepSeek Harness'
     const DEFAULT_ACCENT = '#4E7BFF'
     const DEFAULT_TRANSPARENCY = 40
+    const DEFAULT_BLUR = 16
+    const MAX_BLUR = 64
     const HEX = /^#[0-9a-fA-F]{6}$/
     const ACCENT_ERROR_ID = 'uis-accent-error'
     const UPLOAD_ROUTE = '/ui-studio/background'
@@ -60,7 +62,7 @@ body.ui-studio-glass #root { background: transparent !important; }
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
-  filter: blur(16px) saturate(1.18);
+  filter: blur(var(--uis-backdrop-blur, 16px)) saturate(1.18);
   transform: scale(1.04);
 }
 #ui-studio-backdrop::after {
@@ -77,7 +79,7 @@ body[data-ds-dark-theme] #ui-studio-backdrop::after { background: rgba(0, 0, 0, 
   object-fit: cover;
 }
 body.ui-studio-glass [data-shortcut-modal="settings"] {
-  backdrop-filter: blur(26px) saturate(1.35);
+  backdrop-filter: blur(var(--uis-panel-blur, 26px)) saturate(1.35);
 }
 `
 
@@ -175,6 +177,8 @@ body.ui-studio-glass [data-shortcut-modal="settings"] {
       glassHint: 'A blurred backdrop shows through translucent surfaces. The settings page stays neutral so palette options are easy to compare.',
       transparency: 'Transparency',
       transparencyHint: 'How much of the backdrop shows through app surfaces. 0% is opaque.',
+      blur: 'Blur',
+      blurHint: 'Softening of the backdrop and frosted surfaces. 0 px keeps the backdrop sharp.',
       background: 'Background',
       backgroundHint: 'Upload a photo, animated GIF/WebP, or an MP4/WebM video. It sits behind the glass surfaces.',
       chooseFile: 'Choose file',
@@ -243,6 +247,8 @@ body.ui-studio-glass [data-shortcut-modal="settings"] {
       glassHint: '模糊的背景会透过半透明界面显示。设置页保持中性配色，方便比较各配色方案。',
       transparency: '透明度',
       transparencyHint: '界面透出背景的程度；0% 为不透明。',
+      blur: '模糊度',
+      blurHint: '背景与毛玻璃表面的柔化程度；0 px 时背景清晰。',
       background: '背景',
       backgroundHint: '上传照片、动态 GIF/WebP，或 MP4/WebM 视频，用作玻璃界面后面的背景。',
       chooseFile: '选择文件',
@@ -297,6 +303,7 @@ body.ui-studio-glass [data-shortcut-modal="settings"] {
         accentMode: 'preset',
         accent: DEFAULT_ACCENT,
         transparency: DEFAULT_TRANSPARENCY,
+        blur: DEFAULT_BLUR,
         background: null,
         brandEnabled: false,
         brandName: DEFAULT_NAME,
@@ -334,6 +341,10 @@ body.ui-studio-glass [data-shortcut-modal="settings"] {
       const transparency = Number.isFinite(transparencyNumber)
         ? Math.max(0, Math.min(100, Math.round(transparencyNumber)))
         : base.transparency
+      const blurNumber = Number(input.blur)
+      const blur = Number.isFinite(blurNumber)
+        ? Math.max(0, Math.min(MAX_BLUR, Math.round(blurNumber)))
+        : base.blur
       const brandName = typeof input.brandName === 'string' ? input.brandName.slice(0, 40) : base.brandName
       const brandMark = sanitizeMark(typeof input.brandMark === 'string' ? input.brandMark : base.brandMark)
       return {
@@ -342,6 +353,7 @@ body.ui-studio-glass [data-shortcut-modal="settings"] {
         accentMode,
         accent,
         transparency,
+        blur,
         background: sanitizeBackground(input.background),
         brandEnabled: input.brandEnabled === true,
         brandName,
@@ -365,6 +377,7 @@ body.ui-studio-glass [data-shortcut-modal="settings"] {
         accentMode: snapshot.accentMode,
         accent: snapshot.accent,
         transparency: snapshot.transparency,
+        blur: snapshot.blur,
         background: snapshot.background,
         brandEnabled: snapshot.brandEnabled,
         brandName: snapshot.brandName,
@@ -540,6 +553,10 @@ body.ui-studio-glass [data-shortcut-modal="settings"] {
       const preset = SURFACES[snapshot.surface]
       const transparency = Math.max(0, Math.min(100, Number(snapshot.transparency) || 0))
       const alpha = Math.max(0.45, 1 - (transparency / 100) * 0.55)
+      const blurNumber = Number(snapshot.blur)
+      const blur = Number.isFinite(blurNumber)
+        ? Math.max(0, Math.min(MAX_BLUR, Math.round(blurNumber)))
+        : DEFAULT_BLUR
       const tokens = {}
       const glass = alpha < 0.999
       if (preset !== undefined || glass) {
@@ -587,6 +604,16 @@ body.ui-studio-glass [data-shortcut-modal="settings"] {
         tokens['--dsw-alias-settings-card-fill'] = {
           light: withAlpha(layer2Light, alpha),
           dark: withAlpha(layer2Dark, alpha),
+        }
+      }
+      if (glass) {
+        const backdropBlur = `${blur}px`
+        const surfaceBlur = `${Math.round(blur * 1.6)}px`
+        tokens['--uis-backdrop-blur'] = { light: backdropBlur, dark: backdropBlur }
+        tokens['--uis-panel-blur'] = { light: surfaceBlur, dark: surfaceBlur }
+        tokens['--dsw-menu-backdrop-filter'] = {
+          light: `blur(${surfaceBlur}) saturate(150%)`,
+          dark: `blur(${surfaceBlur}) saturate(150%)`,
         }
       }
       if (preset !== undefined) {
@@ -935,6 +962,25 @@ body.ui-studio-glass [data-shortcut-modal="settings"] {
                 onChange: (event) => { actions.setTransparency(Number(event.target.value)) },
               }),
               h('span', { className: 'uis-sliderValue' }, `${snapshot.transparency}%`))),
+          h('div', { className: 'uis-divider' }),
+          h('div', { className: 'uis-row' },
+            h('div', { className: 'uis-rowText' },
+              h('div', { className: 'uis-rowLabel' }, t('blur')),
+              h('div', { className: 'uis-rowHint' }, t('blurHint'))),
+            h('div', { className: 'uis-sliderWrap' },
+              h('input', {
+                type: 'range',
+                min: 0,
+                max: MAX_BLUR,
+                step: 1,
+                className: 'uis-slider',
+                value: snapshot.blur,
+                disabled: loading,
+                'aria-label': t('blur'),
+                'aria-valuetext': `${snapshot.blur}px`,
+                onChange: (event) => { actions.setBlur(Number(event.target.value)) },
+              }),
+              h('span', { className: 'uis-sliderValue' }, `${snapshot.blur}px`))),
           h('div', { className: 'uis-divider' }),
           h('div', { className: 'uis-row' },
             h('div', { className: 'uis-rowText' },
@@ -1899,6 +1945,14 @@ body.ui-studio-glass [data-shortcut-modal="settings"] {
         commit({ transparency: next })
       }
 
+      function setBlur(value) {
+        const number = Number(value)
+        if (!Number.isFinite(number)) return
+        const next = Math.max(0, Math.min(MAX_BLUR, Math.round(number)))
+        if (next === store.getSnapshot().blur) return
+        commit({ blur: next })
+      }
+
       function setBackground(background) {
         commit({ background: sanitizeBackground(background) })
       }
@@ -1908,6 +1962,7 @@ body.ui-studio-glass [data-shortcut-modal="settings"] {
         setAccentMode,
         setAccent,
         setTransparency,
+        setBlur,
         setBackground,
         setBrandEnabled,
         setBrandName,
